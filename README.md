@@ -17,7 +17,7 @@ All outputs are illustrative **scenarios, not verified financial outcomes or gua
 
 **UI:** Custom responsive HTML/CSS/JavaScript served by FastAPI rather than Gradio's default interface.
 
-**Orchestration:** Hugging Face `ToolCallingAgent` selects one of four deterministic Python tools. A Groq-compatible model adapter asks the model to perform one tool call, then produce a final natural-language explanation without further tool calls.
+**Orchestration:** Hugging Face `ToolCallingAgent` selects one of four deterministic Python tools. A Groq-compatible model adapter selects exactly one custom Python tool. A specialized smolagents subclass returns the verified tool's result directly, avoiding a fragile second model call.
 
 **Security & availability:**
 - Public site without a username/password challenge.
