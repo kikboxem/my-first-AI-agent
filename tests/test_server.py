@@ -29,13 +29,15 @@ class HttpSmokeTests(unittest.TestCase):
         self.assertIn("CSV lead audit", response.text)
         self.assertIn('id="csv-pane"', response.text)
         self.assertEqual(response.headers["x-content-type-options"], "nosniff")
+        self.assertIn("script-src", response.headers["content-security-policy"])
+        self.assertNotIn("<script>", response.text)
 
     def test_scripts_served_locally(self):
-        for path in ("/csv_audit.js", "/csv_ui.js"):
+        for path in ("/csv_audit.js", "/csv_ui.js", "/agent_ui.js", "/styles.css"):
             with self.subTest(path=path):
                 result = self.client.get(path)
                 self.assertEqual(result.status_code, 200)
-                self.assertIn("javascript", result.headers["content-type"])
+                self.assertTrue("javascript" in result.headers["content-type"] or "text/css" in result.headers["content-type"])
 
     def test_no_upload_api(self):
         response = self.client.post("/api/upload", json={"file": "secret"})
