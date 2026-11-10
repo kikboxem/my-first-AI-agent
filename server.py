@@ -286,11 +286,20 @@ def ask(payload: AskPayload, request: Request):
     message = payload.message.strip()
     if not message:
         return JSONResponse({"error": "Enter a question."}, status_code=422)
+    local_mode = os.getenv("VALUEPILOT_LOCAL_MODE") == "1"
+    if local_mode:
+        # Explicitly disallow access from non-loopback interfaces.
+        host = request.client.host if request.client else ""
+        if host not in ("127.0.0.1", "::1"):
+            return JSONResponse({"error": "Local mode only accepts loopback requests."}, status_code=403)
+        origin = request.headers.get("origin")
+        if origin and origin not in ("http://127.0.0.1:8765", "http://localhost:8765"):
+            return JSONResponse({"error": "Cross-site requests are disabled."}, status_code=403)
     if not gate.acquire(blocking=False):
         return JSONResponse({"error": "The demo is busy. Try again shortly."},
                             status_code=503, headers={"Retry-After": "10"})
     try:
-        decision = quota(request)
+        decision = 0 if local_mode else quota(request)
         if decision != 0:
             errors = {
                 -1: "Rate-limit storage is unavailable. Try again later.",
@@ -301,10 +310,13 @@ def ask(payload: AskPayload, request: Request):
             return JSONResponse({"error": errors.get(decision,"Please try again later.")},
                                 status_code=503 if decision == -1 else 429)
         try:
+            # Browser-local CSV audit never invokes this model endpoint.
+            # Optional local agent mode uses Ollama with no paid cloud inference.
             model = SelectToolModel(
-                model_id="openai/gpt-oss-120b",
-                api_base="https://api.groq.com/openai/v1",
-                api_key=os.environ["GROQ_API_KEY"], max_tokens=700,
+                model_id=os.getenv("OLLAMA_MODEL", "llama3.2:3b") if local_mode else "openai/gpt-oss-120b",
+                api_base="http://127.0.0.1:11434/v1" if local_mode else "https://api.groq.com/openai/v1",
+                api_key="ollama" if local_mode else os.environ["GROQ_API_KEY"],
+                max_tokens=700,
             )
             agent = ToolResultAgent(model=model, tools=TOOLS, max_steps=3,
                                      verbosity_level=0)
