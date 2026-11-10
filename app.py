@@ -4,6 +4,7 @@ import datetime
 import hashlib
 import hmac
 import ipaddress
+import json
 import os
 import uuid
 
@@ -62,11 +63,29 @@ class GroqCompatibleModel(OpenAIServerModel):
         # smolagents ToolCallingAgent expects final answers to arrive as a
         # final_answer tool call; normalize a plain response after tool use.
         if self._tool_ran and isinstance(result.content, str) and result.content.strip():
+            final_text = result.content.strip()
+            # Groq sometimes emits a JSON tool-call envelope as ordinary text.
+            # Decode it so visitors see the answer, not the envelope.
+            candidate = final_text
+            if candidate.startswith("```"):
+                candidate = candidate.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+            try:
+                obj = json.loads(candidate)
+                if (
+                    isinstance(obj, dict)
+                    and obj.get("name") == "final_answer"
+                    and isinstance(obj.get("arguments"), dict)
+                    and isinstance(obj["arguments"].get("answer"), str)
+                ):
+                    final_text = obj["arguments"]["answer"]
+            except (ValueError, TypeError):
+                pass
+
             result.tool_calls = [
                 ChatMessageToolCall(
                     function=ChatMessageToolCallFunction(
                         name="final_answer",
-                        arguments={"answer": result.content.strip()},
+                        arguments={"answer": final_text},
                     ),
                     id="call_final_response",
                     type="function",
