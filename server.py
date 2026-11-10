@@ -308,8 +308,14 @@ def ask(payload: AskPayload, request: Request):
     if local_mode:
         # Explicitly disallow access from non-loopback interfaces.
         host = request.client.host if request.client else ""
-        if host not in ("127.0.0.1", "::1"):
-            return JSONResponse({"error": "Local mode only accepts loopback requests."}, status_code=403)
+        inside_container = os.getenv("VALUEPILOT_CONTAINER_LOCAL") == "1"
+        try:
+            parsed = ipaddress.ip_address(host)
+            allowed = parsed.is_loopback or (inside_container and parsed.is_private)
+        except ValueError:
+            allowed = False
+        if not allowed:
+            return JSONResponse({"error": "Local mode only accepts loopback or container-network requests."}, status_code=403)
         origin = request.headers.get("origin")
         if origin and origin not in ("http://127.0.0.1:8765", "http://localhost:8765"):
             return JSONResponse({"error": "Cross-site requests are disabled."}, status_code=403)
@@ -332,7 +338,7 @@ def ask(payload: AskPayload, request: Request):
             # Optional local agent mode uses Ollama with no paid cloud inference.
             model = SelectToolModel(
                 model_id=os.getenv("OLLAMA_MODEL", "llama3.2:3b") if local_mode else "openai/gpt-oss-120b",
-                api_base="http://127.0.0.1:11434/v1" if local_mode else "https://api.groq.com/openai/v1",
+                api_base=os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434/v1") if local_mode else "https://api.groq.com/openai/v1",
                 api_key="ollama" if local_mode else os.environ["GROQ_API_KEY"],
                 max_tokens=700,
             )
