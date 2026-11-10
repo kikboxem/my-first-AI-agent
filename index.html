@@ -105,6 +105,41 @@ h1{font-size:clamp(25px,2.7vw,40px);font-weight:780;letter-spacing:-.065em;line-
   .foot{height:auto;padding:23px 0;flex-wrap:wrap}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* CSV audit is local to the browser: fixed-height desktop, scrollable data pane only. */
+[hidden]{display:none!important}
+#agent-pane{display:flex;flex-direction:column;flex:1;gap:15px;min-height:0}
+#csv-pane{display:flex;flex-direction:column;flex:1;min-height:0;gap:13px}
+.csv-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex:none}
+.csv-header h2{margin:0 0 4px;font-size:21px;letter-spacing:-.055em}
+.csv-header p{font-size:12px;color:#748399;margin:0;line-height:1.5}
+.csv-private{font-size:10px;background:#e7f8f0;border-radius:999px;border:1px solid #b6ead4;color:#17684f;padding:8px 11px;font-weight:750;white-space:nowrap}
+.csv-controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center;flex:none}
+.csv-action{border:1px solid #dce6f4;background:white;color:#355176;border-radius:10px;padding:9px 13px;font-size:11px;font-weight:750;display:inline-flex;align-items:center;gap:6px}
+.csv-action:hover{border-color:#9fb6ed;background:#f4f8ff}
+.csv-action.primary{background:#255be7;color:white;border-color:#255be7}
+.csv-action:disabled{opacity:.42;cursor:default}
+.csv-hidden-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.csv-hidden-input:focus-visible+label{outline:3px solid #8facff}
+#csv-status{font-size:11px;color:#5e728e;line-height:1.4;min-height:18px;flex:none}
+#csv-status.csv-error{color:#b42318;font-weight:650}
+.csv-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;flex:none}
+.csv-metric{padding:15px 13px;border-radius:13px;background:#f7faff;border:1px solid #e5edf9;min-width:0}
+.csv-metric small{display:block;color:#77869d;font-size:10px;margin-bottom:6px}
+.csv-metric strong{font-size:clamp(14px,1.45vw,21px);font-variant-numeric:tabular-nums;letter-spacing:-.035em;overflow-wrap:anywhere}
+.csv-table-wrap{border:1px solid #e5ebf4;border-radius:13px;overflow:auto;flex:1;min-height:110px;background:white}
+.csv-table{border-collapse:collapse;text-align:left;width:100%;font-size:11px;min-width:670px}
+.csv-table caption{position:absolute;clip:rect(0,0,0,0);width:1px;height:1px;overflow:hidden}
+.csv-table th{position:sticky;top:0;z-index:1;background:#eef3fb;color:#405777;font-size:10px;font-weight:770;padding:11px;border-bottom:1px solid #dae3f0;white-space:nowrap}
+.csv-table td{padding:10px 11px;border-bottom:1px solid #eef2f7;max-width:260px;vertical-align:top;line-height:1.45;overflow-wrap:anywhere}
+.csv-table tr:hover td{background:#f6f9ff}
+.numeric-cell{font-variant-numeric:tabular-nums;white-space:nowrap}
+#csv-notice{font-size:10px;line-height:1.55;color:#8492a6;flex:none}
+.csv-help{font-size:11px;color:#697994;line-height:1.55;flex:none}
+.csv-help summary{cursor:pointer;font-weight:750;color:#4c658c}
+.csv-help code{color:#3653a6;overflow-wrap:anywhere}
+@media(max-width:900px){#csv-pane{min-height:550px}.csv-table-wrap{min-height:270px}}
+@media(max-width:620px){.csv-header{flex-direction:column}.csv-stats{grid-template-columns:repeat(2,1fr)}.csv-private{white-space:normal}.csv-controls{gap:6px}}
 </style>
 </head>
 <body>
@@ -114,19 +149,54 @@ h1{font-size:clamp(25px,2.7vw,40px);font-weight:780;letter-spacing:-.065em;line-
     <div class="header-right"><span class="status"><i class="green"></i>Live AI agent demo</span><a class="github" target="_blank" rel="noopener noreferrer" href="https://github.com/kikboxem/my-first-AI-agent">GitHub source ↗</a></div>
   </header>
   <div class="intro">
-    <div><div class="tag">AI Agent · Decision Tools</div><h1>From a question to an actionable calculation.</h1><p>Explore four custom Python tools orchestrated by a language model. No login required.</p></div>
+    <div><div class="tag">AI Agent · Decision Tools</div><h1>From sales data to reviewable next actions.</h1><p>Audit a sales CSV privately in your browser, or explore AI-powered scenario tools. No login.</p></div>
     <div class="tip">One-screen workspace</div>
   </div>
   <main class="workspace">
     <aside class="sidebar" aria-label="Select workflow">
       <div class="label">Workflows</div>
-      <button type="button" class="nav-tool" data-mode="roi" aria-selected="true"><span class="glyph">↗</span><span><span class="menu-title">Automation ROI</span><span class="menu-sub">Modeled savings and costs</span></span></button>
+      <button type="button" class="nav-tool" data-mode="csv" aria-selected="true"><span class="glyph">▦</span><span><span class="menu-title">CSV lead audit</span><span class="menu-sub">Private, offline analysis</span></span></button>
+      <button type="button" class="nav-tool" data-mode="roi" aria-selected="false"><span class="glyph">↗</span><span><span class="menu-title">Automation ROI</span><span class="menu-sub">Modeled savings and costs</span></span></button>
       <button type="button" class="nav-tool" data-mode="sales" aria-selected="false"><span class="glyph">▥</span><span><span class="menu-title">Sales uplift</span><span class="menu-sub">Revenue and gross profit</span></span></button>
       <button type="button" class="nav-tool" data-mode="lead" aria-selected="false"><span class="glyph">◎</span><span><span class="menu-title">Lead priority</span><span class="menu-sub">Expected value per hour</span></span></button>
       <button type="button" class="nav-tool" data-mode="time" aria-selected="false"><span class="glyph">◷</span><span><span class="menu-title">World time</span><span class="menu-sub">Full zone names and AM/PM</span></span></button>
-      <div class="aside-note"><strong>Engineering demonstration</strong>These are illustrative calculations, not measured business results. Source code is available on GitHub.</div>
+      <div class="aside-note"><strong>Engineering demonstration</strong>CSV audits run without uploading data or calling a model. No messages are sent.</div>
     </aside>
-    <section class="content" aria-labelledby="workflow-title">
+    <section class="content" aria-label="ValuePilot workspace">
+      <section id="csv-pane" aria-label="Private sales CSV analysis">
+        <div class="csv-header">
+          <div><h2>Opportunity recovery audit</h2><p>Turn a CRM export into a ranked, reviewable follow-up list. No AI calls, servers, or accounts needed for CSV analysis.</p></div>
+          <span class="csv-private">Private by design · browser only</span>
+        </div>
+        <div class="csv-controls">
+          <input class="csv-hidden-input" id="csv-file" type="file" accept=".csv,text/csv" aria-label="Select sales opportunity CSV">
+          <label class="csv-action primary" for="csv-file" tabindex="0">Choose CSV file</label>
+          <button class="csv-action" type="button" id="csv-sample">Load synthetic sample</button>
+          <button class="csv-action" type="button" id="csv-template">Download example CSV</button>
+          <button class="csv-action" type="button" id="csv-export" disabled>Export ranked report</button>
+          <button class="csv-action" type="button" id="csv-clear">Clear</button>
+        </div>
+        <div role="status" aria-live="polite" id="csv-status">Choose a file to start.</div>
+        <div class="csv-stats" id="csv-summary" aria-label="Audit statistics"></div>
+        <div class="csv-table-wrap" role="region" aria-label="Ranked opportunity recommendations" tabindex="0">
+          <table class="csv-table">
+            <caption>Ranked opportunity list with review flags and suggested next actions</caption>
+            <thead><tr><th scope="col">Rank</th><th scope="col">Account</th><th scope="col">Weighted revenue</th><th scope="col">Review flags</th><th scope="col">Suggested next action</th></tr></thead>
+            <tbody id="csv-rows"></tbody>
+          </table>
+        </div>
+        <div id="csv-notice">Choose a CSV or use the synthetic sample. No outreach is sent.</div>
+        <details class="csv-help"><summary>CSV format, scoring and privacy details</summary>
+          Required columns: <code>lead_id, company, deal_value, currency, stage, last_contact_date, owner, win_probability_percent, next_action_due_date</code>.
+          Dates are YYYY-MM-DD; one currency per file. Maximum 1 MB / 2,000 opportunities.
+          Duplicate IDs, invalid dates, mixed currencies and malformed files are rejected.
+          Open opportunities are ranked by probability-weighted deal value, with transparent heuristic boosts for overdue/stale/missing tasks.
+          Ranking is not a validated closing probability or recovered revenue estimate.
+          CSV data is processed in this browser tab, not uploaded, stored, or sent to any AI provider.
+          Exported cells are protected against spreadsheet formula injection. Use only data you are authorized to process.
+        </details>
+      </section>
+      <div id="agent-pane" hidden aria-label="AI-powered demonstration workflows">
       <div class="content-top">
         <div><div class="content-title" id="workflow-title">Automation ROI</div><div class="content-desc" id="workflow-description">Estimate the financial potential of automating a repeatable workflow, including operating costs and assumptions.</div></div>
         <span class="pill">Deterministic Python calculations</span>
@@ -145,6 +215,7 @@ h1{font-size:clamp(25px,2.7vw,40px);font-weight:780;letter-spacing:-.065em;line-
         </section>
       </div>
       <div class="examples"><div class="examples-heading"><strong>Suggested scenario</strong><small id="assumption-note">Hypothetical inputs; no claimed actual savings</small></div><button type="button" class="sample" id="example">Load example scenario ↗</button></div>
+      </div>
     </section>
   </main>
   <footer class="foot"><span>ValuePilot · Open-source learning project · Financial scenarios are hypothetical.</span><span><b>Build:</b> Python + Hugging Face smolagents + FastAPI + Redis</span></footer>
@@ -168,8 +239,11 @@ h1{font-size:clamp(25px,2.7vw,40px);font-weight:780;letter-spacing:-.065em;line-
   let mode="roi";
   function setMode(next){
     mode=next;
-    const p=presets[next];
     nav.forEach(x=>x.setAttribute('aria-selected',String(x.dataset.mode===next)));
+    document.getElementById('csv-pane').hidden=next!=="csv";
+    document.getElementById('agent-pane').hidden=next==="csv";
+    if(next==="csv") return;
+    const p=presets[next];
     document.getElementById('workflow-title').textContent=p.title;
     document.getElementById('workflow-description').textContent=p.desc;
     document.getElementById('assumption-note').textContent=p.note;
@@ -206,8 +280,10 @@ h1{font-size:clamp(25px,2.7vw,40px);font-weight:780;letter-spacing:-.065em;line-
     try{await navigator.clipboard.writeText(answer.textContent);copy.textContent="Copied";setTimeout(()=>copy.textContent="Copy result",1600)}
     catch{copy.textContent="Copy unavailable"}
   });
-  setMode("roi");
+  setMode("csv");
 })();
 </script>
+<script src="./csv_audit.js" defer></script>
+<script src="./csv_ui.js" defer></script>
 </body>
 </html>
