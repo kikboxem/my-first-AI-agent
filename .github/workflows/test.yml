@@ -26,6 +26,7 @@ jobs:
         run: |
           node --check csv_audit.js
           node --check csv_ui.js
+          node --check agent_ui.js
       - name: Test offline CSV engine
         run: node tests/test_csv_audit.cjs
       - name: Python syntax check
@@ -34,3 +35,33 @@ jobs:
         run: pip install -r requirements.txt
       - name: Test HTTP routes and security boundaries
         run: python -m unittest discover -s tests -p 'test_*.py' -v
+
+  docker:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v7
+      - name: Build Ubuntu 26.04 image
+        run: docker build --pull --tag valuepilot:ubuntu-26.04 .
+      - name: Verify image runs non-root and boots without cloud secrets
+        run: |
+          test "$(docker image inspect --format '{{.Config.User}}' valuepilot:ubuntu-26.04)" = "10001:10001"
+          docker run --detach --name valuepilot-test \
+            --read-only --tmpfs /tmp:size=32m --cap-drop ALL \
+            --security-opt no-new-privileges \
+            --publish 127.0.0.1:8765:10000 \
+            --env VALUEPILOT_LOCAL_MODE=1 \
+            --env VALUEPILOT_CONTAINER_LOCAL=1 \
+            --env PORT=10000 \
+            valuepilot:ubuntu-26.04
+          for i in $(seq 1 35); do
+            if curl --fail --silent http://127.0.0.1:8765/health | grep -q '"ok"'; then break; fi
+            sleep 2
+          done
+          curl --fail --show-error http://127.0.0.1:8765/health
+          curl --fail --show-error http://127.0.0.1:8765/ | grep -q 'CSV lead audit'
+          curl --fail --show-error http://127.0.0.1:8765/csv_audit.js | grep -q 'ValuePilotAudit'
+      - name: Print container logs on failure
+        if: failure()
+        run: docker logs valuepilot-test || true
