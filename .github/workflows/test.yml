@@ -1,0 +1,36 @@
+name: ValuePilot validation
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax checks
+        run: |
+          node --check csv_audit.js
+          node --check csv_ui.js
+      - name: Test offline CSV engine
+        run: node tests/test_csv_audit.cjs
+      - name: Python syntax check
+        run: python -m compileall -q app.py server.py tests/test_server.py
+      - name: Install Python dependencies for API smoke test
+        run: pip install -r requirements.txt
+      - name: Test HTTP routes and security boundaries
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
