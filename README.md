@@ -45,6 +45,10 @@ priority_score = expected_revenue × (1 + 0.30 if overdue
 
 Closed opportunities have zero active ranking score and are excluded from the active pipeline metrics. This heuristic is intended for **triage**, not financial forecasting; boosts were chosen as transparent demonstration parameters, **not** learned/validated probabilities. The user should calibrate it with historical win/loss outcomes before production use.
 
+## Ubuntu 26.04 Docker deployment
+
+The project includes a tested **Ubuntu 26.04 LTS Dockerfile**, a loopback-only Docker Compose configuration, non-root runtime and a Docker build/smoke-test job in GitHub Actions. See [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md) for secure WSL2 instructions and Render runtime migration.
+
 ## Run entirely on your own computer
 
 ### Fastest: CSV-only, no Python dependencies
