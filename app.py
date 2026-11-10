@@ -53,7 +53,14 @@ class GroqCompatibleModel(OpenAIServerModel):
         # A tool is required for the first step. Once a real tool has been
         # called, Groq may naturally produce a plain-language final response,
         # which its API rejects if tool_choice remains 'required'.
-        kwargs["tool_choice"] = "auto" if self._tool_ran else "required"
+        if self._tool_ran:
+            # The time-zone tool already ran. Do not offer ANY tools to Groq
+            # on this final-answer call: Groq otherwise sometimes invents
+            # a non-existent function and rejects the entire request (HTTP 400).
+            kwargs["tools_to_call_from"] = None
+            kwargs["tool_choice"] = None
+        else:
+            kwargs["tool_choice"] = "required"
         result = super().generate(messages, **kwargs)
         if result.tool_calls:
             if any(call.function.name != "final_answer" for call in result.tool_calls):
