@@ -11,6 +11,7 @@ import gradio as gr
 import pytz
 import redis
 from smolagents import OpenAIServerModel, ToolCallingAgent, tool
+from smolagents.models import ChatMessageToolCall, ChatMessageToolCallFunction
 
 # Sliding-window limits are checked and recorded atomically in Redis.
 # Global limits cap usage even if someone rotates IP addresses.
@@ -38,6 +39,40 @@ end
 return 0
 """
 
+
+
+class GroqCompatibleModel(OpenAIServerModel):
+    """Handle Groq's tool-choice requirement during multi-step agent runs."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._tool_ran = False
+
+    def generate(self, messages, **kwargs):
+        # A tool is required for the first step. Once a real tool has been
+        # called, Groq may naturally produce a plain-language final response,
+        # which its API rejects if tool_choice remains 'required'.
+        kwargs["tool_choice"] = "auto" if self._tool_ran else "required"
+        result = super().generate(messages, **kwargs)
+        if result.tool_calls:
+            if any(call.function.name != "final_answer" for call in result.tool_calls):
+                self._tool_ran = True
+            return result
+
+        # smolagents ToolCallingAgent expects final answers to arrive as a
+        # final_answer tool call; normalize a plain response after tool use.
+        if self._tool_ran and isinstance(result.content, str) and result.content.strip():
+            result.tool_calls = [
+                ChatMessageToolCall(
+                    function=ChatMessageToolCallFunction(
+                        name="final_answer",
+                        arguments={"answer": result.content.strip()},
+                    ),
+                    id="call_final_response",
+                    type="function",
+                )
+            ]
+        return result
 
 @tool
 def get_current_time_in_timezone(timezone: str) -> str:
@@ -125,7 +160,7 @@ def ask_agent(message: str, request: gr.Request) -> str:
         return denied
 
     try:
-        model = OpenAIServerModel(
+        model = GroqCompatibleModel(
             model_id="openai/gpt-oss-120b",
             api_base="https://api.groq.com/openai/v1",
             api_key=os.environ["GROQ_API_KEY"],
@@ -137,7 +172,14 @@ def ask_agent(message: str, request: gr.Request) -> str:
             max_steps=3,
         )
         return str(agent.run(message))
-    except Exception:
+    except Exception as error:
+        # Do not log credentials, exception bodies, user prompts or response data.
+        print(
+            "AGENT_FAILURE",
+            type(error).__name__,
+            "status", getattr(error, "status_code", "unknown"),
+            flush=True,
+        )
         return "The model request failed. Please try again later."
 
 
