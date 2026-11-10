@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7f9fc">
+  <meta name="description" content="ValuePilot is a live AI agent demonstrating commercial reasoning, financial modeling and custom Python tools.">
+  <title>ValuePilot — Practical AI. Measurable thinking.</title>
+  <style>
+    :root{--ink:#111827;--muted:#627087;--blue:#255de9;--line:#e3e9f2;--surface:#fff;--shadow:0 25px 65px rgba(30,53,90,.085)}
+    *,*::before,*::after{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;color:var(--ink);background:#f7f9fc;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+    button,input,textarea{font:inherit}
+    a{color:inherit;text-decoration:none}
+    button{cursor:pointer}
+    .shell{max-width:1200px;padding:0 30px;margin:auto}
+    .nav-wrap{height:86px;background:rgba(247,249,252,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(170,186,208,.2)}
+    .nav{height:100%;display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:11px;font-size:19px;font-weight:750;letter-spacing:-.06em}
+    .brand-mark{height:34px;width:34px;background:var(--ink);border-radius:11px;display:grid;place-items:center;color:white;box-shadow:0 6px 18px rgba(17,24,39,.15)}
+    .brand-mark svg{width:22px;height:22px}
+    .nav-links{display:flex;align-items:center;gap:28px;font-size:13px;color:#52617a;font-weight:600}
+    .nav-links a:hover{color:var(--blue)}
+    .open-source{color:#111827!important;background:#fff;border:1px solid var(--line);padding:11px 15px;border-radius:999px}
+    .open-source:hover{border-color:#b2c3e1}
+    .status-dot{width:7px;height:7px;display:inline-block;border-radius:50%;background:#1fb98b;box-shadow:0 0 0 4px rgba(31,185,139,.12);vertical-align:middle;margin-right:9px}
+    .hero{padding:92px 0 72px;background:radial-gradient(ellipse at 83% 8%,rgba(208,222,255,.52),transparent 47%),radial-gradient(ellipse at 9% 55%,rgba(224,238,255,.43),transparent 48%)}
+    .hero-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:64px;align-items:center}
+    .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:780;color:#3757a1;background:#eaf0ff;border:1px solid #dbe6ff;border-radius:999px;padding:10px 15px}
+    .eyebrow i{width:7px;height:7px;background:#3368f5;border-radius:50%}
+    h1{font-size:clamp(44px,5.45vw,76px);letter-spacing:-.075em;line-height:1.06;font-weight:760;margin:28px 0 22px;max-width:700px}
+    .gradient-text{background:linear-gradient(95deg,#2656dd 10%,#537dcf 70%,#7d94db);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .lead{font-size:18px;line-height:1.65;color:var(--muted);max-width:570px;margin:0 0 33px;letter-spacing:-.014em}
+    .hero-actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+    .primary{background:#151e2c;border:1px solid #151e2c;color:white;display:inline-flex;align-items:center;justify-content:center;gap:12px;font-weight:650;padding:15px 23px;border-radius:14px;box-shadow:0 12px 24px rgba(14,25,44,.15);transition:transform .15s,box-shadow .15s}
+    .primary:hover{transform:translateY(-2px);box-shadow:0 18px 30px rgba(14,25,44,.2)}
+    .secondary{padding:15px 18px;color:#344259;font-weight:650}
+    .secondary:hover{color:var(--blue)}
+    .ticks{display:flex;gap:23px;flex-wrap:wrap;margin-top:36px;color:#596980;font-size:12px;font-weight:600}
+    .ticks span::before{content:"✓";color:#148b7f;margin-right:8px}
+    .hero-card{position:relative;background:rgba(255,255,255,.95);border:1px solid rgba(209,220,237,.8);border-radius:31px;padding:30px;box-shadow:0 30px 70px rgba(36,67,121,.115)}
+    .hero-card::after{content:"";position:absolute;inset:11px -12px -11px 12px;border:1px solid rgba(185,206,239,.35);border-radius:33px;z-index:-1}
+    .visual-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:34px}
+    .micro{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#728099;font-weight:800}
+    .sample-pill{padding:8px 10px;background:#f1f6ff;color:#41639f;border-radius:999px;font-size:11px;font-weight:700}
+    .hero-number{font-size:clamp(42px,5vw,66px);font-weight:760;line-height:1;letter-spacing:-.068em;margin:10px 0 4px}
+    .hero-number small{font-size:23px;vertical-align:super;letter-spacing:0;margin-left:3px}
+    .gain-label{color:#58708b;font-size:13px;line-height:1.5}
+    .compare{display:flex;flex-direction:column;gap:17px;margin:36px 0 26px}
+    .compare-row{display:flex;align-items:center;gap:12px;font-size:12px;color:#52647b}
+    .compare-row b{width:78px;flex-shrink:0;font-weight:650}
+    .bar-wrap{background:#edf2f9;height:11px;border-radius:20px;flex:1;overflow:hidden}
+    .bar{height:100%;border-radius:20px;background:linear-gradient(90deg,#3c67e8,#80a5ff)}
+    .bar.subtle{background:#ced8ec}
+    .compare-row strong{min-width:72px;text-align:right;font-variant-numeric:tabular-nums;color:#273549}
+    .visual-note{border-top:1px solid #edf1f6;padding-top:19px;font-size:11px;line-height:1.65;color:#7a8698}
+    .section{padding:76px 0}
+    .section-head{max-width:690px;margin-bottom:35px}
+    .kicker{color:#3c6dec;font-size:11px;font-weight:820;letter-spacing:.16em;text-transform:uppercase}
+    h2{font-size:clamp(29px,3.6vw,44px);line-height:1.15;letter-spacing:-.06em;margin:13px 0 14px;font-weight:760}
+    .section-head p{color:var(--muted);font-size:15px;line-height:1.65;margin:0}
+    .studio{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
+    .panel{border:1px solid var(--line);background:white;border-radius:25px;box-shadow:var(--shadow);padding:26px;min-width:0}
+    .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:21px}
+    .panel-title{font-size:15px;font-weight:760;letter-spacing:-.025em}
+    .label-right{font-size:11px;color:#8a97aa}
+    .prompt-box{width:100%;border:1px solid #dde5f0;outline:none;border-radius:16px;background:#f9fbfe;padding:20px;font-size:15px;line-height:1.65;color:#1d2b42;resize:vertical;min-height:176px;transition:border-color .15s,box-shadow .15s}
+    .prompt-box:focus{border-color:#779af4;box-shadow:0 0 0 4px rgba(63,106,236,.08)}
+    .prompt-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:15px;gap:12px}
+    .hint{font-size:11px;color:#7c899c}
+    .ask{background:#245ae9;border:0;color:white;padding:13px 19px;font-weight:700;border-radius:12px;box-shadow:0 8px 18px rgba(36,90,233,.21);transition:background .15s}
+    .ask:hover{background:#1746c7}
+    .ask:disabled{opacity:.65;cursor:wait}
+    .result-panel{background:#111c2e;color:#f2f6ff;border-color:#17263e;box-shadow:0 24px 50px rgba(10,22,42,.16)}
+    .result-panel .panel-title{color:#f5f7ff}
+    .result-panel .label-right{color:#a7b4c9}
+    .result-head{display:flex;gap:8px;align-items:center}
+    .result-dot{width:9px;height:9px;border-radius:50%;background:#2bd4a2}
+    .answer{font-size:14px;line-height:1.75;letter-spacing:.005em;white-space:pre-wrap;overflow-wrap:anywhere;min-height:178px;margin:0;color:#e4ecf7}
+    .answer.placeholder{color:#93a5be}
+    .result-bottom{border-top:1px solid rgba(208,223,249,.13);padding-top:14px;margin-top:16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .result-bottom small{font-size:11px;color:#9eafc9}
+    .copy{color:#dbe7fc;border:1px solid #3e5270;background:transparent;padding:8px 13px;border-radius:9px;font-size:11px;font-weight:700}
+    .copy:disabled{opacity:.4;cursor:default}
+    .examples-title{font-size:12px;font-weight:700;color:#64758e;margin:25px 0 12px}
+    .examples{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .example{border:1px solid #e2eaf4;background:rgba(255,255,255,.94);border-radius:17px;padding:17px 17px 15px;text-align:left;min-height:124px;transition:transform .15s,border-color .15s,box-shadow .15s}
+    .example:hover{transform:translateY(-3px);border-color:#b1c3e7;box-shadow:0 12px 24px rgba(29,57,104,.075)}
+    .example .icon{width:29px;height:29px;border-radius:9px;background:#edf3ff;display:grid;place-items:center;color:#315fcb;font-size:14px;margin-bottom:12px}
+    .example strong{font-size:13px;letter-spacing:-.02em;display:block;margin-bottom:5px}
+    .example span{font-size:11px;color:#7a889c;line-height:1.5;display:block}
+    .capabilities{background:#fff;border-top:1px solid #e7ecf5;border-bottom:1px solid #e7ecf5}
+    .features{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:45px}
+    .feature-num{font-size:12px;color:#305ec6;font-weight:700;margin-bottom:21px}
+    .feature h3{font-size:18px;letter-spacing:-.04em;margin:0 0 12px;font-weight:730}
+    .feature p{color:#65758a;font-size:13px;line-height:1.75;margin:0}
+    .disclaimer{padding:33px 0 46px;font-size:12px;line-height:1.65;color:#8491a3}
+    .footer{border-top:1px solid #e0e8f1;padding:26px 0 35px;display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;color:#728096;font-size:12px}
+    .footer a:hover{color:var(--blue)}
+    @media(max-width:980px){.hero-grid{grid-template-columns:1fr;gap:35px}.hero-card{max-width:520px}.studio{grid-template-columns:1fr}.examples{grid-template-columns:repeat(2,1fr)}.features{gap:22px}}
+    @media(max-width:620px){.shell{padding:0 18px}.nav-wrap{height:70px}.nav-links a:not(.open-source){display:none}.hero{padding:55px 0 49px}.lead{font-size:16px}.hero-card{padding:23px}.section{padding:57px 0}.panel{padding:20px;border-radius:19px}.examples{grid-template-columns:1fr 1fr;gap:9px}.example{padding:14px;min-height:128px}.features{grid-template-columns:1fr;gap:28px}.hero-number{font-size:49px}.ticks{gap:13px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+  </style>
+</head>
+<body>
+  <header class="nav-wrap"><nav class="nav shell" aria-label="Main navigation">
+    <a class="brand" href="/" aria-label="ValuePilot home"><span class="brand-mark"><svg fill="none" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17.5 10 6l4.4 8L20 5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span> ValuePilot</a>
+    <div class="nav-links"><a href="#workspace">Live demo</a><a href="#capabilities">What it does</a><a class="open-source" href="https://github.com/kikboxem/my-first-AI-agent" target="_blank" rel="noopener noreferrer">View on GitHub ↗</a></div>
+  </nav></header>
+  <main>
+    <section class="hero"><div class="shell hero-grid">
+      <div>
+        <div class="eyebrow"><i></i> AI agent · Real Python tools</div>
+        <h1>Make better decisions.<br><span class="gradient-text">Show the math.</span></h1>
+        <p class="lead">A working AI agent that translates everyday business questions into clear financial scenarios. Model revenue upside, quantify automation value, prioritize opportunities, and coordinate across time zones.</p>
+        <div class="hero-actions">
+          <a class="primary" href="#workspace">Explore the live agent <span aria-hidden="true">↗</span></a>
+          <a class="secondary" href="#capabilities">See the capabilities →</a>
+        </div>
+        <div class="ticks"><span>Transparent assumptions</span><span>Custom Python tools</span><span>Public, rate-limited demo</span></div>
+      </div>
+      <div class="hero-card" aria-label="Illustrative automation return-on-investment example">
+        <div class="visual-head"><span class="micro">Financial scenario snapshot</span><span class="sample-pill">Illustrative only</span></div>
+        <span class="micro">Modeled first-year net value</span>
+        <div class="hero-number">$27,160<small>USD</small></div>
+        <div class="gain-label">Example: 12 employees · 3 hours saved per week · 50% realized value</div>
+        <div class="compare">
+          <div class="compare-row"><b>Value</b><div class="bar-wrap"><div class="bar" style="width:100%"></div></div><strong>$32,760</strong></div>
+          <div class="compare-row"><b>Total cost</b><div class="bar-wrap"><div class="bar subtle" style="width:17.1%"></div></div><strong>$5,600</strong></div>
+        </div>
+        <div class="visual-note">Example assumes $35 fully loaded hourly cost, $300/month software, and $2,000 setup. These are modeled scenarios, not verified savings or business results.</div>
+      </div>
+    </div></section>
+
+    <section class="section" id="workspace"><div class="shell">
+      <div class="section-head"><span class="kicker">Interactive workspace</span><h2>Put the agent to work.</h2><p>Ask a question in plain English. The agent chooses a Python tool, executes a calculation, and explains the result. You can inspect the implementation on GitHub.</p></div>
+      <div class="studio">
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title">Your question</span><span class="label-right">Natural-language input</span></div>
+          <form id="ask-form">
+            <label for="prompt" style="position:absolute;left:-9999px">Your question</label>
+            <textarea id="prompt" class="prompt-box" maxlength="300" placeholder="What would we gain if our team converted 2% more qualified leads each month?">What time is it in Tokyo?</textarea>
+            <div class="prompt-bottom"><span class="hint"><span id="count">25</span>/300 characters</span><button class="ask" type="submit" id="submit">Run analysis ↗</button></div>
+          </form>
+        </div>
+        <div class="panel result-panel">
+          <div class="panel-head"><span class="panel-title result-head"><span class="result-dot" aria-hidden="true"></span> Agent output</span><span class="label-right" id="status">Ready for input</span></div>
+          <div id="answer" class="answer placeholder" role="status" aria-live="polite">Your result will appear here.
+
+Select one of the examples below, or write your own business question to see how the agent uses its tools.</div>
+          <div class="result-bottom"><small>Model: GPT-OSS 120B · Provider: Groq</small><button id="copy" class="copy" type="button" disabled>Copy answer</button></div>
+        </div>
+      </div>
+      <div class="examples-title">Try an example — click to load a prompt</div>
+      <div class="examples">
+        <button type="button" class="example" data-prompt="Our 12 employees each save 3 hours per week from automation. Loaded hourly cost is 35 USD, 50% of the saved time creates value, software costs 300 USD/month, setup costs 2000 USD. Calculate first-year ROI."><span class="icon">↗</span><strong>Calculate automation ROI</strong><span>Estimate the economic value of reclaimed staff time</span></button>
+        <button type="button" class="example" data-prompt="We have 200 qualified leads per month, a 10% current win rate, 12% target win rate, 3000 USD average deal value, and 35% gross margin. Estimate incremental revenue and gross profit."><span class="icon">◫</span><strong>Forecast pipeline uplift</strong><span>Quantify a hypothetical win-rate improvement</span></button>
+        <button type="button" class="example" data-prompt="Prioritize a lead worth 20000 USD with 35% gross margin, 60% win probability, and 10 expected sales hours. Calculate expected gross profit per selling hour."><span class="icon">◎</span><strong>Prioritize an opportunity</strong><span>Estimate probability-weighted commercial potential</span></button>
+        <button type="button" class="example" data-prompt="What time is it in Tokyo? Please use AM or PM and the full time-zone name."><span class="icon">◷</span><strong>Check global time</strong><span>Coordinate international teams with readable local times</span></button>
+      </div>
+    </div></section>
+
+    <section class="section capabilities" id="capabilities"><div class="shell">
+      <div class="section-head"><span class="kicker">Built for real decisions</span><h2>Not just another chatbot.</h2><p>ValuePilot separates natural-language interpretation from deterministic business calculations. Its tools follow transparent formulas rather than asking a language model to invent numbers.</p></div>
+      <div class="features">
+        <article class="feature"><div class="feature-num">01 / ECONOMICS</div><h3>Model financial scenarios</h3><p>Estimate first-year automation returns, incremental sales gross profit, and the attractiveness of new opportunities. Inputs are explicit and adjustable.</p></article>
+        <article class="feature"><div class="feature-num">02 / ENGINEERING</div><h3>Real tool execution</h3><p>Hugging Face smolagents selects purpose-built Python functions. Groq hosts the model, while Redis enforces shared rolling-window API limits.</p></article>
+        <article class="feature"><div class="feature-num">03 / ACCOUNTABILITY</div><h3>Know what's assumed</h3><p>Results distinguish mathematical scenarios from actual measured business outcomes. This demo makes no claim to have generated real-world revenue or savings.</p></article>
+      </div>
+    </div></section>
+    <div class="shell disclaimer">This is an educational portfolio application, not financial advice or an independently validated forecast. Financial results depend on user-supplied assumptions. Public demo usage is limited to five requests per visitor per rolling hour and thirty total per rolling 24 hours.</div>
+  </main>
+  <footer class="shell footer"><span>© 2026 ValuePilot · AI agent portfolio project</span><span>Built with Python · smolagents · FastAPI · Redis</span><a href="https://github.com/kikboxem/my-first-AI-agent" target="_blank" rel="noopener noreferrer">Explore the source code ↗</a></footer>
+  <script>
+  (() => {
+    const form=document.getElementById('ask-form');
+    const prompt=document.getElementById('prompt');
+    const answer=document.getElementById('answer');
+    const status=document.getElementById('status');
+    const submit=document.getElementById('submit');
+    const count=document.getElementById('count');
+    const copy=document.getElementById('copy');
+    count.textContent=prompt.value.length;
+    prompt.addEventListener('input',()=>count.textContent=prompt.value.length);
+    document.querySelectorAll('.example').forEach(button=>{
+      button.addEventListener('click',()=>{
+        prompt.value=button.dataset.prompt.slice(0,300);
+        count.textContent=prompt.value.length;
+        prompt.focus();
+        document.getElementById('workspace').scrollIntoView({behavior:'smooth',block:'start'});
+      });
+    });
+    form.addEventListener('submit',async event=>{
+      event.preventDefault();
+      const text=prompt.value.trim();
+      if(!text||submit.disabled)return;
+      submit.disabled=true;
+      submit.textContent='Working…';
+      copy.disabled=true;
+      answer.classList.add('placeholder');
+      answer.textContent='Analyzing your question and executing the relevant Python tool…';
+      status.textContent='Running';
+      const controller=new AbortController();
+      const timeout=setTimeout(()=>controller.abort(),45000);
+      try{
+        const response=await fetch('/api/ask',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({message:text}),
+          signal:controller.signal
+        });
+        const result=await response.json();
+        if(!response.ok)throw new Error(result.error||'Could not complete the request.');
+        answer.textContent=result.answer||'The agent returned an empty result.';
+        answer.classList.remove('placeholder');
+        status.textContent='Completed';
+        copy.disabled=false;
+      }catch(error){
+        answer.textContent=error.name==='AbortError'
+          ? 'The request took too long. Please try again.'
+          : String(error.message||'Could not complete the request.');
+        status.textContent='Unavailable';
+      }finally{
+        clearTimeout(timeout);
+        submit.disabled=false;
+        submit.textContent='Run analysis ↗';
+      }
+    });
+    copy.addEventListener('click',async()=>{
+      try{await navigator.clipboard.writeText(answer.textContent);copy.textContent='Copied ✓';setTimeout(()=>copy.textContent='Copy answer',1400)}
+      catch{copy.textContent='Unable to copy'}
+    });
+  })();
+  </script>
+</body>
+</html>
