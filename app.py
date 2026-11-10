@@ -9,6 +9,6 @@ if __name__ == "__main__":
         raise RuntimeError("Configure GROQ_API_KEY in Render environment variables.")
     uvicorn.run(
         app,
-        host="127.0.0.1" if local else "0.0.0.0",
+        host="127.0.0.1" if local and os.getenv("VALUEPILOT_CONTAINER_LOCAL") != "1" else "0.0.0.0",
         port=int(os.getenv("PORT", "8765" if local else "10000")),
     )
