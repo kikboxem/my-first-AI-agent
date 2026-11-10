@@ -3,7 +3,6 @@ import datetime
 import hashlib
 import hmac
 import ipaddress
-import json
 import logging
 import os
 import re
@@ -18,7 +17,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
 from smolagents import OpenAIServerModel, ToolCallingAgent, tool
-from smolagents.models import ChatMessageToolCall, ChatMessageToolCallFunction
+from smolagents.agents import ActionOutput, ToolOutput
 
 app = FastAPI(title="ValuePilot", docs_url=None, redoc_url=None, openapi_url=None)
 log = logging.getLogger("valuepilot")
@@ -217,37 +216,32 @@ def prioritize_sales_lead(deal_value: float, gross_margin_percent: float,
 TOOLS = [get_current_time_in_timezone, calculate_automation_roi,
          forecast_sales_uplift, prioritize_sales_lead]
 
-class GroqCompatibleModel(OpenAIServerModel):
-    """Do one deterministic tool step, then request a normal untooled answer."""
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.used_tool = False
+class SelectToolModel(OpenAIServerModel):
+    """Require selection of one custom Python tool, not a generated final answer."""
     def generate(self, messages, **kwargs):
-        if self.used_tool:
-            kwargs["tools_to_call_from"] = None
-            kwargs["tool_choice"] = None
-        else:
-            kwargs["tool_choice"] = "required"
-        msg = super().generate(messages, **kwargs)
-        if msg.tool_calls:
-            if any(x.function.name != "final_answer" for x in msg.tool_calls):
-                self.used_tool = True
-            return msg
-        if self.used_tool and isinstance(msg.content, str) and msg.content.strip():
-            answer = msg.content.strip()
-            try:
-                parsed = json.loads(answer)
-                if (isinstance(parsed, dict) and parsed.get("name") == "final_answer"
-                    and isinstance(parsed.get("arguments"), dict)
-                    and isinstance(parsed["arguments"].get("answer"), str)):
-                    answer = parsed["arguments"]["answer"]
-            except (ValueError, TypeError):
-                pass
-            msg.tool_calls = [ChatMessageToolCall(
-                function=ChatMessageToolCallFunction(name="final_answer",
-                                                     arguments={"answer": answer}),
-                id="call_final_response", type="function")]
-        return msg
+        available = kwargs.get("tools_to_call_from") or []
+        kwargs["tools_to_call_from"] = [
+            item for item in available if item.name != "final_answer"
+        ]
+        kwargs["tool_choice"] = "required"
+        reply = super().generate(messages, **kwargs)
+        if reply.tool_calls:
+            reply.tool_calls = reply.tool_calls[:1]
+        return reply
+
+
+class ToolResultAgent(ToolCallingAgent):
+    """Return the trusted Python tool's result directly, avoiding unreliable second model calls."""
+    def _step_stream(self, memory_step):
+        for event in super()._step_stream(memory_step):
+            if isinstance(event, ToolOutput) and not event.is_final_answer:
+                memory_step.tool_calls = [event.tool_call]
+                memory_step.observations = event.observation
+                yield event
+                yield ActionOutput(output=event.output, is_final_answer=True)
+                return
+            yield event
+
 
 class AskPayload(BaseModel):
     message: str = Field(min_length=1, max_length=300)
@@ -291,17 +285,16 @@ def ask(payload: AskPayload, request: Request):
             return JSONResponse({"error": errors.get(decision,"Please try again later.")},
                                 status_code=503 if decision == -1 else 429)
         try:
-            model = GroqCompatibleModel(
+            model = SelectToolModel(
                 model_id="openai/gpt-oss-120b",
                 api_base="https://api.groq.com/openai/v1",
                 api_key=os.environ["GROQ_API_KEY"], max_tokens=700,
             )
-            agent = ToolCallingAgent(model=model, tools=TOOLS, max_steps=3,
+            agent = ToolResultAgent(model=model, tools=TOOLS, max_steps=3,
                                      verbosity_level=0)
             answer = agent.run(
-                "Use exactly one of the provided Python tools. Do not invent calculations. "
-                "State assumptions; do not call estimated business value guaranteed savings. "
-                "Respond concisely with readable line breaks. Request: " + message
+                "Call the one relevant Python tool to answer the request using supplied facts. "
+                "Tool results are returned directly, with clear assumptions. Request: " + message
             )
             return {"answer": str(answer)}
         except Exception as exc:
