@@ -42,6 +42,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v7
+      - name: Validate Docker Compose configuration
+        run: docker compose config --quiet
       - name: Build Ubuntu 26.04 image
         run: docker build --pull --tag valuepilot:ubuntu-26.04 .
       - name: Verify image runs non-root and boots without cloud secrets
