@@ -67,6 +67,14 @@
       setStatus(e.message||"Unable to read CSV",true);
     }
   }
+  // Custom label is also keyboard-operable when the native input is visually hidden.
+  const pickerLabel = document.querySelector('label[for="csv-file"]');
+  if (pickerLabel) pickerLabel.addEventListener("keydown", event => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      input.click();
+    }
+  });
   input.addEventListener("change", async()=>{
     const file=input.files && input.files[0];
     if(!file)return;
