@@ -134,3 +134,158 @@ h1{font-size:clamp(25px,2.7vw,40px);font-weight:780;letter-spacing:-.065em;line-
 @media(max-width:620px){.csv-header{flex-direction:column}.csv-stats{grid-template-columns:repeat(2,1fr)}.csv-private{white-space:normal}.csv-controls{gap:6px}}
 
 .visually-hidden{position:absolute;clip:rect(0,0,0,0);width:1px;height:1px;overflow:hidden}
+
+
+/* Readability and viewport layout overhaul, November 2026.
+   All navigational controls remain accessible at small resolutions.
+   Only long results/tables scroll, never the main document. */
+html,body{height:100%;width:100%;overflow:hidden}
+body{font-size:14px;line-height:1.5;text-rendering:optimizeLegibility;letter-spacing:normal}
+#page{height:100dvh;min-height:0;max-width:1600px;overflow:hidden;padding-inline:clamp(12px,2vw,26px)}
+header{height:clamp(50px,8dvh,66px)}
+.brand{font-size:19px;letter-spacing:-.015em;font-weight:720;line-height:1.2}
+.intro{padding:clamp(8px,1.4dvh,18px) 2px;gap:12px}
+h1{font-size:clamp(22px,2.4vw,35px);font-weight:700;letter-spacing:-.02em;line-height:1.25}
+.intro p{font-size:13px;line-height:1.55}
+.workspace{flex:1;min-height:0;grid-template-columns:220px minmax(0,1fr);gap:12px}
+.sidebar,.content{min-height:0;border-radius:16px}
+.sidebar{padding:10px;gap:2px;overflow:hidden}
+.sidebar .label{padding:3px 8px 7px}
+.nav-tool{flex-shrink:0;min-width:0;padding:8px 9px;gap:9px;line-height:1.4;border-radius:10px}
+.nav-tool > span:last-child{display:block;min-width:0;flex:1}
+.nav-tool .glyph{width:32px;height:32px;border-radius:9px}
+.nav-tool .menu-title{display:block;font-size:12px;line-height:1.35;font-weight:680;letter-spacing:0}
+.nav-tool .menu-sub{display:block;font-size:10.5px;line-height:1.35;letter-spacing:0;margin-top:2px;white-space:normal}
+.sidebar .aside-note{padding-top:8px;font-size:10px;line-height:1.4}
+.content{padding:clamp(10px,1.5vw,20px);gap:10px;overflow:hidden}
+.content-title{font-size:20px;line-height:1.3;letter-spacing:-.015em;font-weight:700}
+.content-desc{font-size:12.5px;line-height:1.55}
+.content-top{gap:8px}
+.panel{padding:clamp(10px,1.3vw,17px)}
+.panel-head strong{font-weight:690}
+.csv-header{gap:8px;align-items:center}
+.csv-header h2{font-size:clamp(16px,1.8vw,21px);letter-spacing:-.012em;line-height:1.3;font-weight:700}
+.csv-header p{font-size:12px;line-height:1.5}
+#csv-pane{min-height:0;gap:clamp(6px,1.1dvh,12px)}
+.csv-controls{gap:6px}
+.csv-action{padding:8px 10px;font-weight:650;line-height:1.4}
+.csv-table-wrap{min-height:0;flex:1;overflow:auto;overscroll-behavior:contain}
+.csv-table{font-size:12px}
+.csv-table th{font-size:11px}
+.csv-table td{line-height:1.5}
+.csv-metric{padding:10px}
+.csv-metric strong{letter-spacing:0;line-height:1.25}
+.csv-private{font-weight:650}
+.foot{height:clamp(22px,4dvh,36px);font-size:10px;min-height:0;line-height:1.2}
+#agent-pane{gap:10px;min-height:0}
+.panels{min-height:0}
+.question textarea{min-height:0;font-size:13px}
+.output-body{min-height:0}
+.examples{min-height:0}
+.csv-help[open]{max-height:34%;overflow:auto;overscroll-behavior:contain}
+@media (max-height:700px) and (min-width:901px){
+ .intro .tag{margin-bottom:2px}
+ .intro{padding:6px 2px}
+ .intro p{font-size:11px}
+ h1{font-size:24px;margin-bottom:2px}
+ .sidebar{padding:7px;gap:0}
+ .nav-tool{padding:5px 8px}
+ .nav-tool .glyph{width:29px;height:29px}
+ .sidebar .aside-note{font-size:9px;padding-top:4px}
+ .content{padding:10px}
+ .csv-header p{font-size:11px}
+ .csv-stats .csv-metric{padding:7px}
+ .csv-help{font-size:10px}
+ .foot{height:20px}
+}
+@media (max-width:900px){
+ #page{height:100dvh;min-height:0;overflow:hidden;padding-inline:12px}
+ header{height:52px;min-height:52px}
+ .intro{padding:9px 0}
+ .intro h1{font-size:clamp(17px,3vw,25px);line-height:1.25}
+ .intro p{font-size:11px}
+ .intro .tag{font-size:9px;margin-bottom:2px}
+ .intro .tip{display:none}
+ .workspace{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);min-height:0;gap:8px}
+ .sidebar{display:flex;flex-direction:row;align-items:stretch;overflow-x:auto;overflow-y:hidden;max-height:66px;min-height:0;gap:4px;padding:5px;scrollbar-width:thin;overscroll-behavior:contain}
+ .sidebar .label,.sidebar .aside-note{display:none}
+ .nav-tool{flex:1 0 auto;width:auto;min-width:max-content;flex-direction:row;justify-content:center;padding:7px 8px;gap:5px;text-align:left}
+ .nav-tool > span:last-child{flex:0 1 auto}
+ .nav-tool .glyph{width:29px;height:29px;font-size:14px}
+ .nav-tool .menu-title{font-size:11px;white-space:nowrap}
+ .nav-tool .menu-sub{display:none}
+ .content{padding:10px;min-height:0;overflow:hidden}
+ .content-top{flex-direction:row}
+ .content-desc{font-size:11px}
+ .panels{grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:0}
+ .panel{min-height:0}
+ .csv-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .csv-metric{padding:7px}
+ .csv-metric small{font-size:9px;line-height:1.3}
+ .csv-metric strong{font-size:clamp(11px,2vw,17px)}
+ #csv-pane{min-height:0}
+ .csv-table-wrap{min-height:0}
+ .csv-private{white-space:normal}
+ .foot{display:none}
+}
+@media (max-width:620px){
+ #page{padding-inline:9px}
+ header{height:46px;min-height:46px}
+ .brand{font-size:17px}
+ .logo{height:30px;width:30px}
+ .header-right .status{display:none}
+ .github{padding:7px 9px;font-size:11px}
+ .intro{padding:6px 0}
+ h1,.intro h1{font-size:clamp(17px,4.3vw,23px);margin-bottom:3px}
+ .intro p{font-size:10.5px}
+ .nav-tool{padding:6px 7px;gap:4px}
+ .sidebar{max-height:51px}
+ .nav-tool .glyph{height:25px;width:25px;font-size:12px}
+ .nav-tool .menu-title{font-size:10.5px}
+ .content{padding:8px}
+ .content-top{flex-direction:column;gap:3px}
+ .content-title{font-size:17px}
+ .content-desc{font-size:11px}
+ .pill{display:none}
+ .csv-header{flex-direction:row;align-items:flex-start}
+ .csv-header h2{font-size:16px}
+ .csv-header p{font-size:10.5px}
+ .csv-private{display:none}
+ .csv-controls{gap:5px}
+ .csv-action{font-size:10px;padding:7px 9px}
+ .csv-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+ .csv-metric{padding:6px}
+ .csv-metric strong{font-size:14px}
+ .csv-metric small{margin-bottom:2px}
+ .csv-table-wrap{min-height:0}
+ .csv-table{font-size:11px}
+ #csv-status{font-size:10px;min-height:0}
+ #csv-notice{font-size:9px}
+ .csv-help{font-size:10px}
+ .panels{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:7px}
+ .question textarea{min-height:0}
+ .output-body{max-height:none}
+ .panel{padding:9px;min-height:0}
+ .panel-head{margin-bottom:5px}
+ .question-footer{margin-top:6px}
+ .run{padding:8px 10px}
+ .examples{padding-top:6px}
+ .examples-heading{margin-bottom:4px}
+ .examples-heading small{display:none}
+ .sample{padding:5px 8px}
+}
+@media (max-height:580px) {
+ header{height:42px;min-height:42px}
+ .intro{padding:4px 0}
+ .intro .tag{display:none}
+ .intro p{display:none}
+ .sidebar{max-height:45px}
+ .nav-tool .glyph{width:22px;height:22px}
+ .nav-tool{padding:3px 6px}
+ .content{padding:7px}
+ .csv-header p{display:none}
+ .csv-metric{padding:4px}
+ #csv-pane{gap:4px}
+ .csv-help{font-size:9px}
+ .foot{display:none}
+}
