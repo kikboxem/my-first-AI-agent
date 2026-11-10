@@ -5,6 +5,9 @@ set "VALUEPILOT_LOCAL_MODE=1"
 set "PORT=8765"
 if exist ".venv\Scripts\python.exe" (
   set "PY=.venv\Scripts\python.exe"
+) else if exist "%USERPROFILE%\huggingface-course\.venv\Scripts\python.exe" (
+  echo Reusing the existing Hugging Face course Python environment.
+  set "PY=%USERPROFILE%\huggingface-course\.venv\Scripts\python.exe"
 ) else (
   echo First-run setup: creating a local Python environment...
   py -3 -m venv .venv
