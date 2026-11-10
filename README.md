@@ -93,7 +93,7 @@ Tests cover parsing, dates, duplicate IDs, currency consistency, ranking, closed
 ## Privacy, security, accessibility and sustainability
 
 - **Privacy by design:** CSV input stays in browser memory. No CRM API token, cookies, cloud storage, external tracking, third-party UI libraries, upload endpoint, automated outreach or data retention for the audit.
-- **Security:** 1 MB and 2,000-row constraints; strict schema; no HTML rendering of uploaded cell values; formula injection mitigation for CSV export; explicit opt-in file selection; server-side Redis rate limits for paid-model endpoints.
+- **Security:** 1 MB and 2,000-row constraints; strict schema; no HTML rendering of uploaded cell values; formula injection mitigation for CSV export; explicit opt-in file selection; restrictive Content Security Policy with self-hosted scripts/styles; server-side Redis rate limits for paid-model endpoints.
 - **Accessible design:** labeled file controls, semantic table, keyboard-friendly buttons, live region for outcomes, visible focus indicators, responsive/mobile fallback, and reduced-motion support. These are implementation measures, **not a formal WCAG certification**.
 - **Sustainable cost design:** no LLM inference for data analysis, no large frontend libraries, and local-first computation. **Energy and CO2 savings have not been measured**; local compute still consumes electricity.
 - **Fairness and accountability:** uses business-supplied criteria only, no protected-attribute scoring, provides rationale, and requires a human decision before contacting anyone. Biased or inaccurate inputs can still bias outcomes.
