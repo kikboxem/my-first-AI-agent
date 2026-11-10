@@ -1,5 +1,7 @@
 smolagents==1.26.0
-gradio>=5.0,<6.0
+fastapi>=0.115,<1
+uvicorn>=0.30,<1
+redis>=5,<7
 pytz>=2024.1,<2028
+Babel>=2.16,<3
 openai>=1.70,<4
-redis>=5.0,<7.0
