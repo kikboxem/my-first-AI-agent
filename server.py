@@ -251,6 +251,12 @@ async def security_headers(request: Request, call_next):
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; script-src 'self'; style-src 'self'; "
+        "connect-src 'self'; img-src 'self' data:; font-src 'self'; "
+        "base-uri 'none'; object-src 'none'; frame-ancestors 'none'; "
+        "form-action 'self'"
+    )
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     if request.url.path.startswith("/api/"):
         response.headers["Cache-Control"] = "no-store"
@@ -260,6 +266,18 @@ async def security_headers(request: Request, call_next):
 def home():
     return FileResponse(root/"index.html", media_type="text/html",
                         headers={"Cache-Control": "no-store"})
+
+@app.get("/styles.css", include_in_schema=False)
+def stylesheet():
+    return FileResponse(root / "styles.css", media_type="text/css",
+                        headers={"Cache-Control": "public, max-age=300"})
+
+
+@app.get("/agent_ui.js", include_in_schema=False)
+def agent_interface():
+    return FileResponse(root / "agent_ui.js", media_type="text/javascript",
+                        headers={"Cache-Control": "public, max-age=300"})
+
 
 @app.get("/csv_audit.js", include_in_schema=False)
 def csv_engine():
