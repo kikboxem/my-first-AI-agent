@@ -261,6 +261,22 @@ def home():
     return FileResponse(root/"index.html", media_type="text/html",
                         headers={"Cache-Control": "no-store"})
 
+@app.get("/csv_audit.js", include_in_schema=False)
+def csv_engine():
+    return FileResponse(
+        root / "csv_audit.js", media_type="text/javascript",
+        headers={"Cache-Control": "public, max-age=300"},
+    )
+
+
+@app.get("/csv_ui.js", include_in_schema=False)
+def csv_interface():
+    return FileResponse(
+        root / "csv_ui.js", media_type="text/javascript",
+        headers={"Cache-Control": "public, max-age=300"},
+    )
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
