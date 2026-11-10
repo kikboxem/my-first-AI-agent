@@ -1,0 +1,27 @@
+name: valuepilot
+services:
+  valuepilot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: valuepilot:ubuntu-26.04
+    ports:
+      - "127.0.0.1:8765:10000"
+    environment:
+      VALUEPILOT_LOCAL_MODE: "1"
+      VALUEPILOT_CONTAINER_LOCAL: "1"
+      PORT: "10000"
+      OLLAMA_MODEL: "llama3.2:3b"
+      OLLAMA_BASE_URL: "http://host.docker.internal:11434/v1"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,noexec,nosuid
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 1g
+    restart: "no"
