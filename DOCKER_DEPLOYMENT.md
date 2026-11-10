@@ -6,12 +6,14 @@ The container is built from the **official \`ubuntu:26.04\` image**. It runs the
 
 Prerequisites: WSL2 Ubuntu 26.04 LTS, Docker Engine and the Docker Compose plugin.
 
-Start from the project directory in Ubuntu:
+**On Windows, the simplest launcher is `start-docker-wsl.bat`.** It starts Docker Compose in the foreground so the WSL distribution remains running. Keep its terminal open while using ValuePilot, and press Ctrl+C to stop. When no WSL process remains, Windows may automatically shut down the WSL virtual machine and stop its containers. The launcher avoids relying on background services surviving an idle WSL shutdown.
+
+Alternatively, start from the project directory in Ubuntu:
 
 \`\`\`bash
 cd /mnt/c/Users/kiran/ValuePilot
 sudo docker compose build --pull
-sudo docker compose up -d
+sudo docker compose up
 sudo docker compose ps
 \`\`\`
 
