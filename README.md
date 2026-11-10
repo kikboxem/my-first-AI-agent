@@ -1,39 +1,53 @@
-# My First AI Agent — Public Time-Zone Demo
+# ValuePilot — Commercial AI Agent
 
-A simple public AI-agent portfolio project built with Python, Gradio, [Hugging Face smolagents](https://github.com/huggingface/smolagents), and Groq-hosted GPT-OSS 120B.
+A public, responsive AI portfolio project that demonstrates **measurable business reasoning** using Hugging Face `smolagents`, Groq's hosted GPT-OSS 120B, and deterministic Python tools.
 
-The agent has one custom Python tool, `get_current_time_in_timezone`, which uses an IANA time-zone identifier (e.g., `Asia/Tokyo`) to return the local time.
+**[Try the live website](https://my-first-ai-agent-8sea.onrender.com)**
 
-## Security and budget controls
+## What it demonstrates
 
-- The public demo has **no login requirement**.
-- An atomic Redis Lua check enforces three **rolling-window** limits: **5 requests per visitor per hour**, **5 requests globally per minute**, and **30 requests globally per 24 hours**.
-- Redis counters are shared across app instances and survive restarts of the **app**. They survive restarts of the Redis server only if the Redis provider has persistence enabled.
-- **Fail closed**: if Redis is missing or unreachable, the app does **not** call Groq.
-- The input is restricted to 300 characters; the agent has at most 3 steps per request; Gradio handles only one agent request at a time.
-- Visitor identifiers are pseudonymized with a keyed SHA-256 HMAC rather than storing raw IP addresses in Redis.
-- Redis rate limits are **not** a substitute for bot detection, provider-side budgets, or a WAF. Client IP identification is best-effort behind proxies.
+- **Automation ROI:** model labor capacity unlocked by automation, annual software/setup costs, net first-year value, ROI and setup payback.
+- **Sales pipeline uplift:** model incremental expected deals, revenue and gross profit from a hypothetical change in conversion rate.
+- **Lead prioritization:** compute probability-weighted gross profit per estimated selling hour to compare opportunities.
+- **International coordination:** retrieve local time in **12-hour AM/PM format with full time-zone names**, taking daylight saving time into account.
 
-## Deploying to Render
+All outputs are illustrative **scenarios, not verified financial outcomes or guaranteed savings**. Tools use explicitly supplied inputs, not invented customer or company data. The application does not send emails, scrape private accounts, or make purchases.
 
-1. Create a Python web service from this GitHub repository.
-2. Use build command: `pip install -r requirements.txt`
-3. Use start command: `python app.py`
-4. Set these **service environment variables** in Render (never commit secrets):
-   - `GROQ_API_KEY`: a Groq API key authorized to use `openai/gpt-oss-120b`
-   - `REDIS_URL`: connection URL to a Redis/Valkey service (e.g., a Render Key Value instance in the same region or Upstash Redis).
-5. Deploy. Once Redis is reachable, public questions are accepted within the limits.
+## Architecture
 
-**Important:** Render Free Key Value instances can lose their contents if the Key Value instance restarts. For stronger quota continuity, choose a provider/plan offering persistence.
+**UI:** Custom responsive HTML/CSS/JavaScript served by FastAPI rather than Gradio's default interface.
 
-## Test prompts
+**Orchestration:** Hugging Face `ToolCallingAgent` selects one of four deterministic Python tools. A Groq-compatible model adapter asks the model to perform one tool call, then produce a final natural-language explanation without further tool calls.
 
-- What time is it in Tokyo?
-- What is the current time in Copenhagen?
-- What time is it in Pune?
+**Security & availability:**
+- Public site without a username/password challenge.
+- Redis atomic rolling-window quotas: **5 queries/visitor/hour**, **5 total queries/minute**, and **30 total queries/24 hours**.
+- Fails closed if Redis is missing or unavailable, preventing unmetered model calls.
+- Basic IP pseudonymization, input validation (300 characters), 2 concurrent requests and 3 agent steps maximum.
+- Private `GROQ_API_KEY` and `REDIS_URL` server-side environment variables; no secrets in GitHub.
+- No CAPTCHA; legitimate automated access is allowed within the same budgets.
+- These protections are appropriate for a small portfolio demonstration but do **not** replace WAF protections or provider-side spend limits.
 
-## Design notes
+## Deploy on Render
 
-A `ToolCallingAgent` is used instead of allowing unrestricted AI-generated Python execution on a public server. Only one controlled custom tool is exposed. Rate limiting is performed before the model call, regardless of whether the request comes from the Gradio UI or its backend API.
+Create a **Python** web service connected to this repository:
 
-MIT License.
+- Build command: `pip install -r requirements.txt`
+- Start command: `python app.py`
+- Region: select the nearest supported region
+- Environment variables:
+  - `GROQ_API_KEY`: Groq API key authorized for `openai/gpt-oss-120b`
+  - `REDIS_URL`: full Redis URL. For Upstash TCP/TLS, use `rediss://...` (never commit the password)
+
+The `app.py` file is the entrypoint; `server.py` contains the agent/API; `index.html` contains the polished public interface.
+
+## Test examples
+
+1. "What time is it in Tokyo?"
+2. "We have 200 qualified leads monthly, current win rate 10%, target 12%, average deal USD 3,000 and gross margin 35%. Estimate additional revenue and gross profit."
+3. "12 staff save 3 hours weekly each, loaded labor cost USD 35/h, 50% realized economic value, USD 300 monthly software fee, USD 2,000 setup cost. Calculate year-one ROI."
+4. "Evaluate a USD 20,000 opportunity, 35% gross margin, 60% win probability, requiring 10 sales hours."
+
+**The purpose:** showcase how reliable business rules and agent-driven tool selection can assist customer-facing and operations teams. Financial benefits are hypothetical until validated using real company data.
+
+MIT licensed.
