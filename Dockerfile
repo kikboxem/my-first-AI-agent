@@ -18,7 +18,7 @@ WORKDIR /app
 COPY requirements.txt /app/requirements.txt
 RUN python -m pip install --no-cache-dir -r /app/requirements.txt
 
-COPY app.py server.py index.html styles.css agent_ui.js csv_audit.js csv_ui.js /app/
+COPY app.py server.py index.html styles.css agent_ui.js csv_audit.js csv_ui.js social-preview.png /app/
 
 # Run without privileges; no root needed at runtime.
 RUN useradd --system --uid 10001 --no-create-home --shell /usr/sbin/nologin valuepilot \

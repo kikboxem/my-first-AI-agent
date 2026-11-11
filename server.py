@@ -262,10 +262,16 @@ async def security_headers(request: Request, call_next):
         response.headers["Cache-Control"] = "no-store"
     return response
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def home():
     return FileResponse(root/"index.html", media_type="text/html",
                         headers={"Cache-Control": "no-store"})
+
+@app.api_route("/social-preview.png", methods=["GET", "HEAD"], include_in_schema=False)
+def social_preview():
+    return FileResponse(root / "social-preview.png", media_type="image/png",
+                        headers={"Cache-Control": "public, max-age=86400"})
+
 
 @app.get("/styles.css", include_in_schema=False)
 def stylesheet():
