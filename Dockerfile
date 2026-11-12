@@ -6,8 +6,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3 python3-venv ca-certificates \
+# Retry transient Ubuntu mirror/DNS failures, and fail if APT metadata cannot be refreshed.
+RUN apt-get -o Acquire::Retries=5 -o APT::Update::Error-Mode=any update \
+    && apt-get -o Acquire::Retries=5 install -y --no-install-recommends python3 python3-venv ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 ENV VIRTUAL_ENV=/opt/venv
